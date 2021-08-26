@@ -3,12 +3,6 @@ const TOKEN = "ODExNzg5NzMwNzY1MjA5NjQy.YC3USw.3_qOSbE-VDCK-rHasRBksAYGcrw";
 const axios = require("axios");
 const { writeFileSync, readFileSync, existsSync, exists } = require("fs");
 const colors = require("colors");
-const readline = require("readline");
-
-const rl = readline.createInterface({
-  output: process.stdout,
-  input: process.stdin
-})
 
 var tokens, ids = [];
 
