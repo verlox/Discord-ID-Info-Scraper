@@ -1,4 +1,4 @@
-const TOKEN = "ODExNzg5NzMwNzY1MjA5NjQy.YC3USw.3_qOSbE-VDCK-rHasRBksAYGcrw";
+const TOKEN = "";
 
 const axios = require("axios");
 const { writeFileSync, readFileSync, existsSync, exists } = require("fs");
