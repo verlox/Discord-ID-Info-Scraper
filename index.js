@@ -1,10 +1,33 @@
-const TOKEN = "";
+const TOKEN = "ODExNzg5NzMwNzY1MjA5NjQy.YC3USw.3_qOSbE-VDCK-rHasRBksAYGcrw";
 
 const axios = require("axios");
-const { writeFileSync, readFileSync, existsSync } = require("fs");
+const { writeFileSync, readFileSync, existsSync, exists } = require("fs");
 const colors = require("colors");
+const readline = require("readline");
 
-var ids = readFileSync("ids.txt").toString().split('\n');
+const rl = readline.createInterface({
+  output: process.stdout,
+  input: process.stdin
+})
+
+var tokens, ids = [];
+
+if (existsSync("ids.txt"))
+  ids = readFileSync("ids.txt").toString().split('\n');
+
+if (existsSync("tokens.txt"))
+  tokens = readFileSync("tokens.txt").toString().split('\n');
+
+if (tokens)
+{
+  for (var x = 0;x < tokens.length;x++)
+  {
+    const snowflake = Buffer.from(tokens[x].split('.')[0], "base64").toString("utf-8");
+    ids.push(snowflake);
+    console.log(`Added token snowflake ${snowflake}`)
+  }
+}
+
 
 var json = []
 
