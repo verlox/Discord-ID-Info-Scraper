@@ -1,0 +1,28 @@
+{
+  "name": "discord-id-scraper",
+  "version": "1.0.0",
+  "description": "Scrapes IDs information and outputs it into a file",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/verlox/Discord-ID-Scraper.git"
+  },
+  "keywords": [
+    "idscraper",
+    "scraper",
+    "discord"
+  ],
+  "author": "verlox",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/verlox/Discord-ID-Scraper/issues"
+  },
+  "homepage": "https://github.com/verlox/Discord-ID-Scraper#readme",
+  "dependencies": {
+    "axios": "^0.21.1",
+    "colors": "^1.4.0"
+  }
+}
