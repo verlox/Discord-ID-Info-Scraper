@@ -3,3 +3,4 @@ node_modules/
 ids.txt
 tokens.txt
 scraped.json
+cfg.json

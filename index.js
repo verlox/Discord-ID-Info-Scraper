@@ -1,7 +1,8 @@
-const TOKEN = "";
+const { TOKEN } = require("./cfg.json");
 
 const axios = require("axios");
 const { writeFileSync, readFileSync, existsSync, exists } = require("fs");
+const { decode } = require("punycode");
 require("colors");
 
 var tokens, ids = [];
@@ -12,20 +13,23 @@ if (existsSync("ids.txt"))
 if (existsSync("tokens.txt"))
   tokens = readFileSync("tokens.txt").toString().split('\n');
 
+// if theres tokens, decode them and add them to the ids list
 if (tokens)
 {
   for (var x = 0;x < tokens.length;x++)
   {
-    const snowflake = Buffer.from(tokens[x].split('.')[0], "base64").toString("utf-8");
+    const snowflake = decodeBase64(tokens[x].split('.')[0]);
     ids.push(snowflake);
     console.log(`Added token snowflake ${snowflake}`)
   }
 }
 
+// making the array
+var json = [];
 
-var json = []
-
+// set this var so that we can say how many items were removed from the array
 let pre = ids.length;
+
 // remove copies from array
 // https://www.javascripttutorial.net/array/javascript-remove-duplicates-from-array/
 ids = [...new Set(ids)];
@@ -33,6 +37,37 @@ console.log(`Removed ${pre - ids.length} copies from IDs array`.green);
 
 if (!existsSync("scraped.json"))
   writeFileSync("scraped.json", "{\"users\":[]}");
+
+function decodeBase64(str)
+{
+  return Buffer.from(str, "base64").toString("utf-8");
+}
+
+function userInfo(id)
+{
+  return new Promise((res, rej) => {
+    axios.get(`https://discord.com/api/v9/users/${id}`, { // user information URL
+    headers: {
+      "authorization": TOKEN,
+    }
+  }).then(result => { // success
+    console.log(`Got information on ${result.data.username}#${result.data.discriminator} (${id})`.green);
+    return res(result);
+  }).catch(er => { // error
+    if (er.response && er.response.data.message == "You are being rate limited.") // doesnt mean user is unknown, just means we have to check again after a couple seconds
+    {
+      console.log(`${id} was ratelimited, retrying in ${er.response.data.retry_after}`.red);
+      setTimeout(() => {
+        return res(userInfo(id));
+      }, Math.ceil(er.response.data.retry_after) * 1000)
+    } else
+    {
+      console.log(`Failed to get information on ${id}`.red);
+      return rej(er) // reject promise
+    }
+  });
+  })
+}
 
 function run(id)
 {
@@ -56,29 +91,17 @@ function run(id)
   }
 
   if (ids[id] == '')
+    return run(id + 1);
 
   console.log(`Checking ID ${ids[id]}`.yellow);
-  axios.get(`https://discord.com/api/v9/users/${ids[id]}`, { // user information URL
-    headers: {
-      "authorization": TOKEN,
-    }
-  }).then(res => { // success
-    console.log(`Got information on ${res.data.username}#${res.data.discriminator} (${ids[id]})`.green);
-    json.push(res.data) // add teh user data to the json object
-    run(id + 1) // run next user
-  }).catch(er => { // error
-    if (er.response && er.response.data.message == "You are being rate limited.") // doesnt mean user is unknown, just means we have to check again after a couple seconds
-    {
-      console.log(`${ids[id]} was ratelimited, retrying in ${er.response.data.retry_after}`.red);
-      setTimeout(() => {
-        run(id); // retry the user after this delay
-      }, Math.ceil(er.response.data.retry_after) * 1000)
-    } else
-    {
-      console.log(`Failed to get information on ${ids[id]}`.red);
-      run(id + 1) // try and get next users info
-    }
-  });
+  
+  userInfo(ids[id]).then(result => {
+    json.push(result.data); // add teh user data to the json object
+    run(id + 1);
+  })
 }
 
-run(0)
+userInfo(decodeBase64(TOKEN.split('.')[0])).then(info => {
+  console.log(`Using token for account ${info.data.username}#${info.data.discriminator}`.cyan);
+  run(0);
+});
