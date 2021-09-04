@@ -101,7 +101,8 @@ function run(id)
   })
 }
 
-userInfo(decodeBase64(TOKEN.split('.')[0])).then(info => {
+// use @me instead of getting id from first part of token, i had completely forgotten this until nows
+userInfo("@me").then(info => {
   console.log(`Using token for account ${info.data.username}#${info.data.discriminator}`.cyan);
   run(0);
 });
